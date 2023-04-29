@@ -64,7 +64,6 @@ function showCreatePostDialog() {
   console.log("Create New Post clicked!");
 }
 
-
 // todo
 
 // ============== posts ============== //
@@ -72,8 +71,8 @@ function showCreatePostDialog() {
 async function updatePostsGrid() {
   posts = await getPosts(); // get posts from rest endpoint and save in global variable
   showPosts(posts); // show all posts (append to the DOM) with posts as argument
-  // when post is updated scrool smoothly to top
-  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  window.scrollTo({ top: 0, behavior: "smooth" }); // when post is updated scrool smoothly to top
 }
 
 // Get all posts - HTTP Method: GET
@@ -146,9 +145,9 @@ function showPost(postObject) {
     //shows the update form
     document.querySelector("#dialog-update-post").showModal();
 
-    console.log("Update button clicked");
-    // to do
+    // console.log("Update button clicked");
   }
+}
 
 function updatePostClicked(event) {
   event.preventDefault();
@@ -157,13 +156,11 @@ function updatePostClicked(event) {
   const title = form.title.value;
   const body = form.body.value;
   const image = form.image.value;
-  form.getAttribute("data-id", postObject.id);
+  //gets the id of the post
+  const id = form.getAttribute("data-id");
+  updatePost(title, body, image, id);
+  document.querySelector("#dialog-update-post").close();
 }
-
-}
-
-
-
 
 // Create a new post - HTTP Method: POST
 async function createPost(title, body, image) {
@@ -188,7 +185,7 @@ async function createPost(title, body, image) {
   }
 }
 
-// Update an existing post - HTTP Method: DELETE
+// Delete an existing post - HTTP Method: DELETE
 async function deletePost(id) {
   // DELETE fetch request
   const response = await fetch(`${endpoint}/posts/${id}.json`, {
@@ -201,13 +198,22 @@ async function deletePost(id) {
   }
 }
 
-// Delete an existing post - HTTP Method: PUT
+//  Update an existing post - HTTP Method: PUT
 async function updatePost(id, title, body, image) {
   // post update to update
+  const postToUpdate = { title, body, image };
   // convert the JS object to JSON string
+  const json = JSON.stringify(postToUpdate);
   // PUT fetch request with JSON in the body. Calls the specific element in resource
+  const response = await fetch(`${endpoint}/posts/${id}.json`, {
+    method: "PUT",
+    body: json,
+  });
   // check if response is ok - if the response is successful
-  // update the post grid to display all posts and the new post
+  if (response.ok) {
+    // update the post grid to display all posts
+    updatePostsGrid();
+  }
 }
 
 // ============== helper function ============== //

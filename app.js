@@ -29,13 +29,12 @@ function initApp() {
     .querySelector("#form-delete-post .btn-cancel")
     .addEventListener("click", cancelDelete);
 
-//   document
-//     .querySelector("#form-update-post")
-//     .addEventListener("submit", updatePostClicked);
+  document
+    .querySelector("#form-update-post")
+    .addEventListener("submit", updatePostClicked);
 }
 
 function cancelDelete() {
-    
   console.log("cancel btn clicked");
   document.querySelector("#dialog-delete-post").close();
 }
@@ -65,6 +64,7 @@ function showCreatePostDialog() {
   console.log("Create New Post clicked!");
 }
 
+
 // todo
 
 // ============== posts ============== //
@@ -72,6 +72,8 @@ function showCreatePostDialog() {
 async function updatePostsGrid() {
   posts = await getPosts(); // get posts from rest endpoint and save in global variable
   showPosts(posts); // show all posts (append to the DOM) with posts as argument
+  // when post is updated scrool smoothly to top
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // Get all posts - HTTP Method: GET
@@ -114,23 +116,54 @@ function showPost(postObject) {
 
   // called when delete button is clicked
   function deleteClicked() {
-    console.log("Update button clicked");
+    console.log("Delete button clicked");
 
+    //shows title of object we are to delete
     document.querySelector("#dialog-delete-post-title").textContent =
       postObject.title;
+
     //gets the form at sets the id for the specific object in the form
     document
       .querySelector("#form-delete-post")
       .setAttribute("data-id", postObject.id);
+
     document.querySelector("#dialog-delete-post").showModal();
   }
 
   // called when update button is clicked
   function updateClicked() {
-    console.log("Delete button clicked");
+    //saves the form in as a variable so easier to use below
+    const updateForm = document.querySelector("#form-update-post");
+    //sets value of the form title to that of the object.
+    updateForm.title.value = postObject.title;
+    //sets value of the form body to that of the object.
+    updateForm.body.value = postObject.body;
+    //sets value of the form image to that of the object.
+    updateForm.image.value = postObject.image;
+    //sets the id of the form to the id for the specific object
+    updateForm.setAttribute("data-id", postObject.id);
+
+    //shows the update form
+    document.querySelector("#dialog-update-post").showModal();
+
+    console.log("Update button clicked");
     // to do
   }
+
+function updatePostClicked(event) {
+  event.preventDefault();
+  const form = event.target;
+  // extract the values from inputs in the form
+  const title = form.title.value;
+  const body = form.body.value;
+  const image = form.image.value;
+  form.getAttribute("data-id", postObject.id);
 }
+
+}
+
+
+
 
 // Create a new post - HTTP Method: POST
 async function createPost(title, body, image) {
@@ -163,9 +196,9 @@ async function deletePost(id) {
   });
   // check if response is ok - if the response is successful
   if (response.ok) {
+    // update the post grid to display posts
     updatePostsGrid();
   }
-  // update the post grid to display posts
 }
 
 // Delete an existing post - HTTP Method: PUT
